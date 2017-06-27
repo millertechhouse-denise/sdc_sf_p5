@@ -21,7 +21,7 @@ double dt = 0.05;
 // This is the length from front to CoG that has a similar radius.
 
 
-const double ref_v = 60;
+const double ref_v = 40;
 
 size_t x_start = 0;
 size_t y_start = x_start + N;
@@ -40,6 +40,15 @@ class FG_eval {
 
   typedef CPPAD_TESTVECTOR(AD<double>) ADvector;
   void operator()(ADvector& fg, const ADvector& vars) {
+		
+		const double cte_weight = 200.;
+		const double epsi_weight = 200.;
+		const double v_weight = 0.5; 
+		const double delta_weight = 1.; 
+		const double a_weight = 1.; 
+		const double delta_delta_weight = 600.; 
+		const double a_delta_weight = 1.; 
+		
     // TODO: implement MPC
     // `fg` a vector of the cost constraints, `vars` is a vector of variable values (state & actuators)
     // NOTE: You'll probably go back and forth between this function and
@@ -55,21 +64,21 @@ class FG_eval {
 
     // The part of the cost based on the reference state.
     for (int t = 0; t < N; t++) {
-      fg[0] += 200.*CppAD::pow(vars[cte_start + t], 2);
-      fg[0] += 200.*CppAD::pow(vars[epsi_start + t], 2);
-      fg[0] += 0.1*CppAD::pow(vars[v_start + t] - ref_v, 2);
+      fg[0] += cte_weight*CppAD::pow(vars[cte_start + t], 2);
+      fg[0] += epsi_weight*CppAD::pow(vars[epsi_start + t], 2);
+      fg[0] += v_weight*CppAD::pow(vars[v_start + t] - ref_v, 2);
     }
 
     // Minimize the use of actuators.
     for (int t = 0; t < N - 1; t++) {
-      fg[0] += CppAD::pow(vars[delta_start + t], 2);
-      fg[0] += CppAD::pow(vars[a_start + t], 2);
+      fg[0] += delta_weight * CppAD::pow(vars[delta_start + t], 2);
+      fg[0] += a_weight *CppAD::pow(vars[a_start + t], 2);
     }
 
     // Minimize the value gap between sequential actuations.
     for (int t = 0; t < N - 2; t++) {
-      fg[0] += 500. * CppAD::pow(vars[delta_start + t + 1] - vars[delta_start + t], 2);
-      fg[0] += CppAD::pow(vars[a_start + t + 1] - vars[a_start + t], 2);
+      fg[0] += delta_delta_weight * CppAD::pow(vars[delta_start + t + 1] - vars[delta_start + t], 2);
+      fg[0] += a_delta_weight * CppAD::pow(vars[a_start + t + 1] - vars[a_start + t], 2);
     }
 		
 
@@ -132,10 +141,8 @@ class FG_eval {
 		  fg[1 + y_start + t] = y1 - (y0 + v0 * CppAD::sin(psi0) * dt);
 		  fg[1 + psi_start + t] = psi1 - (psi0 + v0 * delta0 / Lf * dt);
 		  fg[1 + v_start + t] = v1 - (v0 + a0 * dt);
-		  fg[1 + cte_start + t] =
-		      cte1 - ((f0 - y0) + (v0 * CppAD::sin(epsi0) * dt));
-		  fg[1 + epsi_start + t] =
-		      epsi1 - ((psi0 - psides0) + v0 * delta0 / Lf * dt);
+		  fg[1 + cte_start + t] = cte1 - ((f0 - y0) + (v0 * CppAD::sin(epsi0) * dt));
+		  fg[1 + epsi_start + t] = epsi1 - ((psi0 - psides0) + v0 * delta0 / Lf * dt);
 		}
 		
 		
@@ -280,5 +287,5 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs, std::ve
           solution.x[psi_start + 1], solution.x[v_start + 1],
           solution.x[cte_start + 1], solution.x[epsi_start + 1],
           solution.x[delta_start],   solution.x[a_start]};
-  return {};
+  //return {};
 }

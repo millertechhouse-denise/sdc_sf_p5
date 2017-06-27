@@ -119,8 +119,7 @@ int main() {
 					Eigen::VectorXd ptsy_tx = way_points.row(1);
 					
 					
-		
-					
+					//third order polynomial
 					auto coeffs = polyfit(ptsx_tx, ptsy_tx, 3);
 					
 					double cte = polyeval(coeffs, 0);
