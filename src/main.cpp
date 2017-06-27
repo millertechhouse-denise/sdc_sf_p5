@@ -162,10 +162,6 @@ int main() {
 					cout << " epsi        " << epsi << endl;
 					cout << " steer_value " << steer_value << endl ;
 					cout << " throttle    " << throttle_value << endl ;
-
-          //***********
-          //Dsplaying path information affects accuracy, use for debugging only
-					//***********
 					
 					vector<double> mpc_x_vals;
 					vector<double> mpc_y_vals;
@@ -179,7 +175,7 @@ int main() {
 					     mpc_x_vals.push_back(x_path[i]);
 					     mpc_y_vals.push_back(y_path[i]);
 					 }
-          */
+					 */
 					//.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system
 					// the points in the simulator are connected by a Green line
 
@@ -193,10 +189,11 @@ int main() {
 	        /*
 					int pts = 25;
 					for (int i = 1; i < pts; i++) {
-						next_x_vals.push_back(i*3);
+						next_x_vals.push_back(i*2.5);
 						next_y_vals.push_back(polyeval(coeffs, i*3));
 					}
 					*/
+					
 					
 
 
